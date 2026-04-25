@@ -63,6 +63,8 @@ tribalscale-assessment/
 ├── src/
 │   ├── index.ts                # Server entry point
 │   ├── app.ts                  # Express app factory (importable in tests)
+│   ├── prompts/
+│   │   └── analyze.ts          # AI system prompt (imported by service)
 │   ├── routes/
 │   │   └── analyze.ts          # POST /api/analyze route handler
 │   ├── services/
@@ -74,6 +76,7 @@ tribalscale-assessment/
 │       └── index.ts            # Shared TypeScript interfaces
 ├── tests/
 │   └── analyze.test.ts         # Jest + Supertest unit tests
+├── AGENTS.md                   # Coding standards and AI agent instructions
 ├── .env.example
 ├── .eslintrc.json
 ├── .prettierrc
@@ -109,6 +112,7 @@ Content-Type: application/json
 
 ```json
 {
+  "status": 200,
   "summary": "A 2–3 sentence summary of the text.",
   "action_items": [
     "First concrete next step.",
@@ -120,10 +124,10 @@ Content-Type: application/json
 
 **Error Responses**
 
-| Status | Cause |
-|--------|-------|
-| `400`  | `text` field is missing, not a string, or empty/whitespace |
-| `500`  | OpenAI call failed or returned an unexpected shape |
+| Status | Body | Cause |
+|--------|------|-------|
+| `400`  | `{ "status": 400, "error": "..." }` | `text` field is missing, not a string, or empty/whitespace |
+| `500`  | `{ "status": 500, "error": "..." }` | OpenAI call failed or returned an unexpected shape |
 
 ### `GET /health`
 
@@ -158,6 +162,8 @@ npm run dev
 
 ### Try It
 
+**Happy path — valid text:**
+
 ```bash
 curl -X POST http://localhost:3000/api/analyze \
   -H "Content-Type: application/json" \
@@ -168,6 +174,7 @@ curl -X POST http://localhost:3000/api/analyze \
 
 ```json
 {
+  "status": 200,
   "summary": "Q3 revenue fell short of targets by 12%, indicating issues across sales, marketing, and pricing. Immediate attention is needed to address pipeline quality, lead volume, and competitive pricing ahead of Q4.",
   "action_items": [
     "Improve sales pipeline quality to increase conversion rates.",
@@ -175,6 +182,32 @@ curl -X POST http://localhost:3000/api/analyze \
     "Conduct a leadership review of the pricing strategy before Q4 begins."
   ]
 }
+```
+
+**Health check:**
+
+```bash
+curl http://localhost:3000/health
+# → { "status": "ok" }
+```
+
+**Error cases — should return 400:**
+
+```bash
+# Missing text field
+curl -X POST http://localhost:3000/api/analyze \
+  -H "Content-Type: application/json" \
+  -d '{}'
+
+# Empty string
+curl -X POST http://localhost:3000/api/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"text": ""}'
+
+# Wrong type
+curl -X POST http://localhost:3000/api/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"text": 12345}'
 ```
 
 ---
