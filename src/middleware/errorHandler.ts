@@ -9,6 +9,6 @@ export function errorHandler(
 ): void {
   console.error('[ErrorHandler]', err.message);
 
-  const body: ErrorResponse = { error: 'An unexpected error occurred. Please try again.' };
+  const body: ErrorResponse = { status: 500, error: 'An unexpected error occurred. Please try again.' };
   res.status(500).json(body);
 }

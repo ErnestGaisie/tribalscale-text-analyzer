@@ -1,7 +1,7 @@
 import request from 'supertest';
 import { createApp } from '../src/app';
 import * as openaiService from '../src/services/openai';
-import { AnalyzeResponse } from '../src/types';
+import { AnalyzeResult } from '../src/types';
 
 jest.mock('../src/services/openai');
 
@@ -9,7 +9,7 @@ const mockAnalyzeText = openaiService.analyzeText as jest.MockedFunction<
   typeof openaiService.analyzeText
 >;
 
-const mockResult: AnalyzeResponse = {
+const mockResult: AnalyzeResult = {
   summary: 'This is a test summary of the provided text.',
   action_items: ['Review the document', 'Schedule a follow-up meeting', 'Update the stakeholders'],
 };
@@ -30,7 +30,7 @@ describe('POST /api/analyze', () => {
       .set('Content-Type', 'application/json');
 
     expect(response.status).toBe(200);
-    expect(response.body).toEqual(mockResult);
+    expect(response.body).toEqual({ status: 200, ...mockResult });
     expect(mockAnalyzeText).toHaveBeenCalledTimes(1);
     expect(mockAnalyzeText).toHaveBeenCalledWith('This is some sample text to analyze.');
   });

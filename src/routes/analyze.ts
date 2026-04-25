@@ -12,7 +12,7 @@ router.post(
     try {
       const { text } = req.body as AnalyzeRequest;
       const result = await analyzeText(text);
-      res.status(200).json(result);
+      res.status(200).json({ status: 200, ...result });
     } catch (err) {
       next(err);
     }

@@ -1,17 +1,6 @@
 import OpenAI from 'openai';
-import { AnalyzeResponse } from '../types';
-
-const SYSTEM_PROMPT = `You are a helpful assistant that analyzes blocks of text.
-
-Given any text, you will:
-1. Write a concise 2-3 sentence summary that captures the main point.
-2. Identify exactly 3 key action items — concrete, specific next steps a reader should take.
-
-Always respond with valid JSON in this exact format, and nothing else:
-{
-  "summary": "string",
-  "action_items": ["string", "string", "string"]
-}`;
+import { AnalyzeResult } from '../types';
+import { ANALYZE_SYSTEM_PROMPT } from '../prompts/analyze';
 
 const MAX_INPUT_CHARS = 12000;
 
@@ -26,13 +15,13 @@ export function createOpenAIClient(): OpenAI {
 export async function analyzeText(
   text: string,
   client: OpenAI = createOpenAIClient(),
-): Promise<AnalyzeResponse> {
+): Promise<AnalyzeResult> {
   const truncatedText = text.length > MAX_INPUT_CHARS ? text.slice(0, MAX_INPUT_CHARS) : text;
 
   const completion = await client.chat.completions.create({
     model: 'gpt-4o-mini',
     messages: [
-      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'system', content: ANALYZE_SYSTEM_PROMPT },
       { role: 'user', content: truncatedText },
     ],
     response_format: { type: 'json_object' },
@@ -44,7 +33,7 @@ export async function analyzeText(
     throw new Error('OpenAI returned an empty response');
   }
 
-  const parsed = JSON.parse(raw) as Partial<AnalyzeResponse>;
+  const parsed = JSON.parse(raw) as Partial<AnalyzeResult>;
 
   if (
     typeof parsed.summary !== 'string' ||
@@ -55,5 +44,5 @@ export async function analyzeText(
     throw new Error('OpenAI response did not match expected schema');
   }
 
-  return parsed as AnalyzeResponse;
+  return parsed as AnalyzeResult;
 }
