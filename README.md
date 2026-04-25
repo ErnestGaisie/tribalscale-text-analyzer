@@ -142,6 +142,18 @@ Returns `{ "status": "ok" }` — used by CI and deploy health checks.
 - An OpenAI API key ([platform.openai.com](https://platform.openai.com))
 - Docker 24+ (recommended), **or** Node.js 20+ for local dev
 
+### Quickstart — one command
+
+```bash
+git clone https://github.com/ErnestGaisie/tribalscale-text-analyzer.git
+cd tribalscale-text-analyzer
+
+# Add your key to .env, then:
+./demo.sh
+```
+
+`demo.sh` handles everything: starts the server (Docker if available, Node.js otherwise), runs the health check, fires all test cases, and shuts down cleanly.
+
 ---
 
 ### Option 1 — Docker (recommended, no Node.js required)
