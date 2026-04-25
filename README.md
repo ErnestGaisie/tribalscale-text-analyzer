@@ -149,10 +149,16 @@ git clone https://github.com/ErnestGaisie/tribalscale-text-analyzer.git
 cd tribalscale-text-analyzer
 
 # Add your key to .env, then:
-./demo.sh
+./start.sh
 ```
 
-`demo.sh` handles everything: starts the server (Docker if available, Node.js otherwise), runs the health check, fires all test cases, and shuts down cleanly.
+`start.sh` bootstraps and starts the server — uses Docker if available, falls back to Node.js with hot-reload otherwise.
+
+To run the full demo (all test cases against the live server):
+
+```bash
+./demo.sh
+```
 
 ---
 
