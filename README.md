@@ -139,10 +139,40 @@ Returns `{ "status": "ok" }` — used by CI and deploy health checks.
 
 ### Prerequisites
 
-- Node.js 20+
 - An OpenAI API key ([platform.openai.com](https://platform.openai.com))
+- Docker 24+ (recommended), **or** Node.js 20+ for local dev
 
-### Setup
+---
+
+### Option 1 — Docker (recommended, no Node.js required)
+
+```bash
+# 1. Clone the repo
+git clone <repo-url>
+cd tribalscale-assessment
+
+# 2. Set up environment variables
+cp .env.example .env
+# Edit .env and add your OPENAI_API_KEY
+
+# 3. Build and start
+docker compose up --build
+```
+
+The server starts at `http://localhost:3000`.
+
+### Run with Docker directly
+
+```bash
+docker build -t tribalscale-assessment .
+docker run -p 3000:3000 --env-file .env tribalscale-assessment
+```
+
+The container exposes port `3000` and includes a health check on `GET /health` (used by Docker Compose to confirm the service is ready).
+
+---
+
+### Option 2 — Local dev (Node.js)
 
 ```bash
 # 1. Clone the repo
@@ -159,6 +189,8 @@ cp .env.example .env
 # 4. Start the dev server (hot-reload)
 npm run dev
 ```
+
+---
 
 ### Try It
 
@@ -302,36 +334,6 @@ flowchart LR
 | **deploy** | *(placeholder)* | Runs on `main` push only; pre-configured for Render, Railway, or Fly.io |
 
 The `lint`, `typecheck`, and `test` stages run in **parallel** (all depend on `install` but not on each other), keeping total pipeline time short.
-
----
-
-## Docker
-
-The app is fully containerized using a **multi-stage Dockerfile** — the build stage compiles TypeScript, and the production stage ships only the compiled `dist/` and production `node_modules`, keeping the final image small.
-
-### Run with Docker Compose
-
-```bash
-# 1. Copy and fill in your API key
-cp .env.example .env
-
-# 2. Build and start
-docker compose up --build
-
-# 3. Test it
-curl -X POST http://localhost:3000/api/analyze \
-  -H "Content-Type: application/json" \
-  -d '{"text": "Your text here."}'
-```
-
-### Run with Docker directly
-
-```bash
-docker build -t tribalscale-assessment .
-docker run -p 3000:3000 --env-file .env tribalscale-assessment
-```
-
-The container exposes port `3000` and includes a health check on `GET /health` (used by Docker Compose to confirm the service is ready).
 
 ---
 
